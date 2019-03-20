@@ -26,7 +26,6 @@ angular.module('ui.bootstrap', [
   'ui.bootstrap.bindHtml',
   'ui.bootstrap.modal',
   'ui.bootstrap.tooltip',
-  'ui.bootstrap.timepicker',
 ]);
 
 angular.module('ui.bootstrap.tpls', [
@@ -34,12 +33,10 @@ angular.module('ui.bootstrap.tpls', [
   'template/modal/window.html',	
   'template/tooltip/tooltip-html-unsafe-popup.html',
   'template/tooltip/tooltip-popup.html',
-  'template/timepicker/timepicker.html',
 ]);
 
 import './bindHtml/bindHtml';
 import './modal/modal';
-import './timepicker/timepicker';
 import './tooltip/tooltip';
 import './transition/transition';
 
@@ -67,8 +64,3 @@ angular.module('template/tooltip/tooltip-popup.html', []).run(['$templateCache',
  $templateCache.put('template/tooltip/tooltip-popup.html', tooltipPopup);	
 }]);
 
-import timepicker from './timepicker/timepicker.html';
-
-angular.module('template/timepicker/timepicker.html', []).run(['$templateCache', function($templateCache) {
-  $templateCache.put('template/timepicker/timepicker.html', timepicker);
-}]);
