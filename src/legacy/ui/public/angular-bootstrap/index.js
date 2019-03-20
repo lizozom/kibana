@@ -24,32 +24,29 @@ angular.module('ui.bootstrap', [
   'ui.bootstrap.tpls',
   'ui.bootstrap.transition',
   'ui.bootstrap.bindHtml',
-  'ui.bootstrap.position',
   'ui.bootstrap.modal',
   'ui.bootstrap.tooltip',
   'ui.bootstrap.progressbar',
   'ui.bootstrap.timepicker',
-  'ui.bootstrap.typeahead'
 ]);
 
 angular.module('ui.bootstrap.tpls', [
   'template/modal/backdrop.html',
-  'template/modal/window.html',
+  'template/modal/window.html',	
+  'template/tooltip/tooltip-html-unsafe-popup.html',	
+  'template/tooltip/tooltip-popup.html',	
+  'template/progressbar/bar.html',	
   'template/progressbar/progress.html',
   'template/progressbar/progressbar.html',
   'template/timepicker/timepicker.html',
-  'template/typeahead/typeahead-match.html',
-  'template/typeahead/typeahead-popup.html'
 ]);
 
 import './bindHtml/bindHtml';
 import './modal/modal';
-import './position/position';
 import './progressbar/progressbar';
 import './timepicker/timepicker';
 import './tooltip/tooltip';
 import './transition/transition';
-import './typeahead/typeahead';
 
 import backdrop from './modal/backdrop.html';
 
@@ -62,6 +59,24 @@ import modal from './modal/window.html';
 angular.module('template/modal/window.html', []).run(['$templateCache', function($templateCache) {
   $templateCache.put('template/modal/window.html', modal);
 }]);
+
+import tooltipUnsafePopup from './tooltip/tooltip-html-unsafe-popup.html';	
+
+angular.module('template/tooltip/tooltip-html-unsafe-popup.html', []).run(['$templateCache', function($templateCache) {	
+ $templateCache.put('template/tooltip/tooltip-html-unsafe-popup.html', tooltipUnsafePopup);	
+}]);	
+
+import tooltipPopup from './tooltip/tooltip-popup.html';	
+
+angular.module('template/tooltip/tooltip-popup.html', []).run(['$templateCache', function($templateCache) {	
+ $templateCache.put('template/tooltip/tooltip-popup.html', tooltipPopup);	
+}]);
+
+import bar from './progressbar/bar.html';	
+
+ angular.module('template/progressbar/bar.html', []).run(['$templateCache', function($templateCache) {	
+  $templateCache.put('template/progressbar/bar.html', bar);	
+}]);	
 
 import progress from './progressbar/progress.html';
 
@@ -79,16 +94,4 @@ import timepicker from './timepicker/timepicker.html';
 
 angular.module('template/timepicker/timepicker.html', []).run(['$templateCache', function($templateCache) {
   $templateCache.put('template/timepicker/timepicker.html', timepicker);
-}]);
-
-import typeaheadMatch from './typeahead/typeahead-match.html';
-
-angular.module('template/typeahead/typeahead-match.html', []).run(['$templateCache', function($templateCache) {
-  $templateCache.put('template/typeahead/typeahead-match.html', typeaheadMatch);
-}]);
-
-import typeaheadPopup from './typeahead/typeahead-popup.html';
-
-angular.module('template/typeahead/typeahead-popup.html', []).run(['$templateCache', function($templateCache) {
-  $templateCache.put('template/typeahead/typeahead-popup.html', typeaheadPopup);
 }]);
