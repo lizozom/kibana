@@ -26,24 +26,19 @@ angular.module('ui.bootstrap', [
   'ui.bootstrap.bindHtml',
   'ui.bootstrap.modal',
   'ui.bootstrap.tooltip',
-  'ui.bootstrap.progressbar',
   'ui.bootstrap.timepicker',
 ]);
 
 angular.module('ui.bootstrap.tpls', [
   'template/modal/backdrop.html',
   'template/modal/window.html',	
-  'template/tooltip/tooltip-html-unsafe-popup.html',	
-  'template/tooltip/tooltip-popup.html',	
-  'template/progressbar/bar.html',	
-  'template/progressbar/progress.html',
-  'template/progressbar/progressbar.html',
+  'template/tooltip/tooltip-html-unsafe-popup.html',
+  'template/tooltip/tooltip-popup.html',
   'template/timepicker/timepicker.html',
 ]);
 
 import './bindHtml/bindHtml';
 import './modal/modal';
-import './progressbar/progressbar';
 import './timepicker/timepicker';
 import './tooltip/tooltip';
 import './transition/transition';
@@ -70,24 +65,6 @@ import tooltipPopup from './tooltip/tooltip-popup.html';
 
 angular.module('template/tooltip/tooltip-popup.html', []).run(['$templateCache', function($templateCache) {	
  $templateCache.put('template/tooltip/tooltip-popup.html', tooltipPopup);	
-}]);
-
-import bar from './progressbar/bar.html';	
-
- angular.module('template/progressbar/bar.html', []).run(['$templateCache', function($templateCache) {	
-  $templateCache.put('template/progressbar/bar.html', bar);	
-}]);	
-
-import progress from './progressbar/progress.html';
-
-angular.module('template/progressbar/progress.html', []).run(['$templateCache', function($templateCache) {
-  $templateCache.put('template/progressbar/progress.html', progress);
-}]);
-
-import progressbar from './progressbar/progressbar.html';
-
-angular.module('template/progressbar/progressbar.html', []).run(['$templateCache', function($templateCache) {
-  $templateCache.put('template/progressbar/progressbar.html', progressbar);
 }]);
 
 import timepicker from './timepicker/timepicker.html';
