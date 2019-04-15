@@ -11,7 +11,8 @@
       ],
       "test_utils/*": [
         "src/test_utils/public/*"
-      ]
+      ],
+      "plugins/*": ["src/legacy/core_plugins/*/public/"],
     },
     // Support .tsx files and transform JSX into calls to React.createElement
     "jsx": "react",
