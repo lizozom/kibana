@@ -20,7 +20,7 @@
 import expect from '@kbn/expect';
 import ngMock from 'ng_mock';
 
-import { FilterManagerProvider } from 'ui/filter_manager';
+import { data } from 'plugins/data';
 
 import { createStateStub } from './_utils';
 import { QueryParameterActionsProvider } from '../actions';
@@ -33,7 +33,7 @@ describe('context app', function () {
     let setQueryParameters;
 
     beforeEach(ngMock.inject(function createPrivateStubs(Private) {
-      Private.stub(FilterManagerProvider, {});
+      Private.stub(data.filterManager.providers.FilterManagerProvider, {});
 
       setQueryParameters = Private(QueryParameterActionsProvider).setQueryParameters;
     }));

@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import { data } from 'plugins/data';
+
 import { EuiButtonEmpty, EuiFlexGroup, EuiFlexItem, EuiPopover } from '@elastic/eui';
 import {
   buildEmptyFilter,
@@ -33,7 +35,6 @@ import classNames from 'classnames';
 import React, { Component } from 'react';
 import chrome from 'ui/chrome';
 import { IndexPattern } from 'ui/index_patterns';
-import { FilterOptions } from 'ui/search_bar/components/filter_options';
 import { FilterEditor } from './filter_editor';
 import { FilterItem } from './filter_item';
 
@@ -58,7 +59,6 @@ class FilterBarUI extends Component<Props, State> {
 
   public render() {
     const classes = classNames('globalFilterBar', this.props.className);
-
     return (
       <EuiFlexGroup
         className="globalFilterGroup"
@@ -67,7 +67,7 @@ class FilterBarUI extends Component<Props, State> {
         responsive={false}
       >
         <EuiFlexItem className="globalFilterGroup__branch" grow={false}>
-          <FilterOptions
+          <data.searchBar.filters.FilterOptions
             onEnableAll={this.onEnableAll}
             onDisableAll={this.onDisableAll}
             onPinAll={this.onPinAll}

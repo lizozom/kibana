@@ -17,4 +17,22 @@
  * under the License.
  */
 
-export { FilterManagerProvider } from './filter_manager';
+// @ts-ignore
+import { FilterManagerProvider } from './filter_manager';
+
+export class FilterManagerProviderService {
+  public setup() {
+    return {
+      providers: {
+        FilterManagerProvider,
+      }
+    };
+  }
+
+  public stop() {
+    // nothing to do here yet
+  }
+}
+
+/** @public */
+export type SearchBarSetup = ReturnType<FilterManagerProviderService['setup']>;

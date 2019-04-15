@@ -18,7 +18,8 @@
  */
 
 import { addFilter } from '../../actions/filter';
-import { FilterManagerProvider } from '../../../filter_manager';
+import { data } from 'plugins/data';
+
 import StubbedLogstashIndexPatternProvider from 'fixtures/stubbed_logstash_index_pattern';
 import NoDigestPromises from 'test_utils/no_digest_promises';
 import expect from '@kbn/expect';
@@ -41,7 +42,7 @@ describe('doc table filter actions', function () {
 
   beforeEach(ngMock.inject(function (Private) {
     indexPattern = Private(StubbedLogstashIndexPatternProvider);
-    filterManager = Private(FilterManagerProvider);
+    filterManager = Private(data.filterManager.providers.FilterManagerProvider);
     sinon.stub(filterManager, 'add');
   }));
 

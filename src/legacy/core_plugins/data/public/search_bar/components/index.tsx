@@ -18,3 +18,4 @@
  */
 
 export { SearchBar } from './search_bar';
+export { FilterOptions } from './filter_options';

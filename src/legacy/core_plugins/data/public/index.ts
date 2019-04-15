@@ -19,21 +19,33 @@
 
 import { IndexPatternsService } from './index_patterns';
 
+import { SearchBarService } from './search_bar';
+
+import { FilterManagerProviderService } from './filter_manager';
+
 class DataService {
   private readonly indexPatterns: IndexPatternsService;
+  private readonly searchBar: SearchBarService;
+  private readonly filterManagerProvider: FilterManagerProviderService;
 
   constructor() {
     this.indexPatterns = new IndexPatternsService();
+    this.searchBar = new SearchBarService();
+    this.filterManagerProvider = new FilterManagerProviderService();
   }
 
   public setup() {
     return {
       indexPatterns: this.indexPatterns.setup(),
+      searchBar: this.searchBar.setup(),
+      filterManager: this.filterManagerProvider.setup(),
     };
   }
 
   public stop() {
     this.indexPatterns.stop();
+    this.searchBar.stop();
+    this.filterManagerProvider.stop();
   }
 }
 
@@ -43,7 +55,8 @@ class DataService {
  * the data that will eventually be injected by the new platform.
  */
 // eslint-disable-next-line import/no-default-export
-export default new DataService().setup();
+const data = new DataService().setup();
+export { data };
 
 /** @public */
 export type DataSetup = ReturnType<DataService['setup']>;

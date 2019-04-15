@@ -17,6 +17,4 @@
  * under the License.
  */
 
-import './directive';
-
-export { SearchBar } from './components';
+export { FilterManagerProviderService } from './filter_manager_service';

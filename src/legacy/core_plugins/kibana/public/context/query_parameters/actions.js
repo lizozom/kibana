@@ -20,7 +20,7 @@
 import _ from 'lodash';
 
 import { FilterBarQueryFilterProvider } from 'ui/filter_bar/query_filter';
-import { FilterManagerProvider } from 'ui/filter_manager';
+import { data } from 'plugins/data';
 import {
   MAX_CONTEXT_SIZE,
   MIN_CONTEXT_SIZE,
@@ -30,7 +30,7 @@ import {
 
 export function QueryParameterActionsProvider(indexPatterns, Private) {
   const queryFilter = Private(FilterBarQueryFilterProvider);
-  const filterManager = Private(FilterManagerProvider);
+  const filterManager = Private(data.filterManager.providers.FilterManagerProvider);
 
   const setPredecessorCount = (state) => (predecessorCount) => (
     state.queryParameters.predecessorCount = clamp(

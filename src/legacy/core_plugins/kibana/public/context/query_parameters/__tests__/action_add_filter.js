@@ -21,7 +21,7 @@ import expect from '@kbn/expect';
 import ngMock from 'ng_mock';
 import sinon from 'sinon';
 
-import { FilterManagerProvider } from 'ui/filter_manager';
+import { data } from 'plugins/data';
 
 import { createStateStub } from './_utils';
 import { QueryParameterActionsProvider } from '../actions';
@@ -36,7 +36,7 @@ describe('context app', function () {
 
     beforeEach(ngMock.inject(function createPrivateStubs(Private) {
       filterManagerStub = createFilterManagerStub();
-      Private.stub(FilterManagerProvider, filterManagerStub);
+      Private.stub(data.filterManager.providers.FilterManagerProvider, filterManagerStub);
 
       addFilter = Private(QueryParameterActionsProvider).addFilter;
     }));

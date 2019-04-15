@@ -26,8 +26,9 @@ import { wrapInI18nContext } from 'ui/i18n';
 import { toastNotifications } from 'ui/notify';
 
 import 'ui/listen';
-import 'ui/search_bar';
 import 'ui/apply_filters';
+
+import { data } from 'plugins/data';
 
 import { panelActionsStore } from './store/panel_actions_store';
 
@@ -50,7 +51,6 @@ import { showNewVisModal } from '../visualize/wizard';
 import { showShareContextMenu, ShareContextMenuExtensionsRegistryProvider } from 'ui/share';
 import { migrateLegacyQuery } from 'ui/utils/migrate_legacy_query';
 import * as filterActions from 'ui/doc_table/actions/filter';
-import { FilterManagerProvider } from 'ui/filter_manager';
 import { EmbeddableFactoriesRegistryProvider } from 'ui/embeddable/embeddable_factories_registry';
 import { ContextMenuActionsRegistryProvider } from 'ui/embeddable';
 import { VisTypesRegistryProvider } from 'ui/registry/vis_types';
@@ -93,7 +93,7 @@ app.directive('dashboardApp', function ($injector) {
       localStorage,
       i18n,
     ) {
-      const filterManager = Private(FilterManagerProvider);
+      const filterManager = Private(data.filterManager.providers.FilterManagerProvider);
       const queryFilter = Private(FilterBarQueryFilterProvider);
       const docTitle = Private(DocTitleProvider);
       const embeddableFactories = Private(EmbeddableFactoriesRegistryProvider);
