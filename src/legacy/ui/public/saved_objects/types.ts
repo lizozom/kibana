@@ -17,7 +17,7 @@
  * under the License.
  */
 import { ChromeStart, OverlayStart, SavedObjectsClientContract } from 'kibana/public';
-import { SearchSource, SearchSourceContract } from 'ui/courier';
+import { ISearchSource } from 'ui/courier';
 import { SavedObjectAttributes, SavedObjectReference } from 'kibana/server';
 import { IndexPatternsContract } from '../../../../plugins/data/public';
 import { IndexPattern } from '../../../core_plugins/data/public';
@@ -42,7 +42,7 @@ export interface SavedObject {
   lastSavedTitle: string;
   migrationVersion?: Record<string, any>;
   save: (saveOptions: SavedObjectSaveOpts) => Promise<string>;
-  searchSource?: SearchSourceContract;
+  searchSource?: ISearchSource;
   showInRecentlyAccessed: boolean;
   title: string;
 }
@@ -83,7 +83,7 @@ export interface SavedObjectConfig {
   mapping?: any;
   migrationVersion?: Record<string, any>;
   path?: string;
-  searchSource?: SearchSource | boolean;
+  searchSource?: ISearchSource | boolean;
   type?: string;
 }
 
