@@ -19,4 +19,6 @@
 
 export { SearchService, SearchSetup, SearchStart } from './search_service';
 
+export { defaultSearchStrategy } from './search_strategy';
+
 export { getRequestInspectorStats, getResponseInspectorStats } from './utils';

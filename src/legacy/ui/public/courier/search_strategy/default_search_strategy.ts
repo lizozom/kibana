@@ -17,8 +17,12 @@
  * under the License.
  */
 
-import { addSearchStrategy, defaultSearchStrategy } from '../index';
+import { defaultSearchStrategy } from '../index';
 
-addSearchStrategy(defaultSearchStrategy);
+// Originally `addSearchStrategy(defaultSearchStrategy)`
+// was called here as a side effect of importing the file.
+// Now we are registering the default strategy in the data
+// shim plugin, so by importing from this file, it should
+// already be loaded there.
 
 export { defaultSearchStrategy };

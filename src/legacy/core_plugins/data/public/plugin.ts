@@ -18,7 +18,7 @@
  */
 
 import { CoreSetup, CoreStart, Plugin } from 'kibana/public';
-import { SearchService, SearchStart } from './search';
+import { SearchService, SearchSetup, SearchStart } from './search';
 import { DataPublicPluginStart } from '../../../../plugins/data/public';
 
 import {
@@ -31,6 +31,15 @@ import {
 
 export interface DataPluginStartDependencies {
   data: DataPublicPluginStart;
+}
+
+/**
+ * Interface for this plugin's returned `setup` contract.
+ *
+ * @public
+ */
+export interface DataSetup {
+  search: SearchSetup;
 }
 
 /**
@@ -54,10 +63,14 @@ export interface DataStart {
  * or static code.
  */
 
-export class DataPlugin implements Plugin<void, DataStart, {}, DataPluginStartDependencies> {
+export class DataPlugin implements Plugin<DataSetup, DataStart, {}, DataPluginStartDependencies> {
   private readonly search = new SearchService();
 
-  public setup(core: CoreSetup) {}
+  public setup(core: CoreSetup): DataSetup {
+    return {
+      search: this.search.setup(core),
+    };
+  }
 
   public start(core: CoreStart, { data }: DataPluginStartDependencies): DataStart {
     // This is required for when Angular code uses Field and FieldList.

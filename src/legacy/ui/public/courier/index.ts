@@ -24,10 +24,17 @@
  * re-exported from ui/courier for backwards compatibility.
  */
 
-import { start as dataStart } from '../../../core_plugins/data/public/legacy';
+import { setup as dataSetup, start as dataStart } from '../../../core_plugins/data/public/legacy';
 
 // runtime contracts
-export const { defaultSearchStrategy, SearchSource } = dataStart.search;
+export const { addSearchStrategy } = dataSetup.search.strategies;
+export const {
+  getSearchStrategyById,
+  getSearchStrategyByViability,
+  getSearchStrategyForSearchRequest,
+  hasSearchStategyForIndexPattern, // typo intentional; method deprecated
+} = dataStart.search.strategies;
+export const { SearchSource } = dataStart.search;
 
 // types
 export {
@@ -53,9 +60,8 @@ export {
 // until we relocate them to a longer-term home.
 /* eslint-disable @kbn/eslint/no-restricted-paths */
 export {
-  addSearchStrategy, // used externally by Rollups
+  defaultSearchStrategy,
   getSearchErrorType, // used externally by Rollups
-  hasSearchStategyForIndexPattern, // used externally by Discover
   isDefaultTypeIndexPattern, // used externally by Discover
   SearchError, // used externally by Visualizations & Rollups
 } from '../../../core_plugins/data/public/search/search_strategy';

@@ -19,14 +19,7 @@
 
 import { IndexPattern } from '../../../../../../plugins/data/public';
 import { noOpSearchStrategy } from './no_op_search_strategy';
-import {
-  searchStrategies,
-  addSearchStrategy,
-  getSearchStrategyByViability,
-  getSearchStrategyById,
-  getSearchStrategyForSearchRequest,
-  hasSearchStategyForIndexPattern,
-} from './search_strategy_registry';
+import { SearchStrategyRegistry } from './search_strategy_registry';
 import { SearchStrategyProvider } from './types';
 
 const mockSearchStrategies: SearchStrategyProvider[] = [
@@ -48,82 +41,84 @@ const mockSearchStrategies: SearchStrategyProvider[] = [
   },
 ];
 
+let strategies: SearchStrategyRegistry;
+
 describe('Search strategy registry', () => {
   beforeEach(() => {
-    searchStrategies.length = 0;
+    strategies = new SearchStrategyRegistry();
   });
 
   describe('addSearchStrategy', () => {
     it('adds a search strategy', () => {
-      addSearchStrategy(mockSearchStrategies[0]);
-      expect(searchStrategies.length).toBe(1);
+      strategies.addSearchStrategy(mockSearchStrategies[0]);
+      expect(strategies.getAll().length).toBe(1);
     });
 
     it('does not add a search strategy if it is already included', () => {
-      addSearchStrategy(mockSearchStrategies[0]);
-      addSearchStrategy(mockSearchStrategies[0]);
-      expect(searchStrategies.length).toBe(1);
+      strategies.addSearchStrategy(mockSearchStrategies[0]);
+      strategies.addSearchStrategy(mockSearchStrategies[0]);
+      expect(strategies.getAll().length).toBe(1);
     });
   });
 
   describe('getSearchStrategyByViability', () => {
     beforeEach(() => {
-      mockSearchStrategies.forEach(addSearchStrategy);
+      mockSearchStrategies.forEach(strategies.addSearchStrategy);
     });
 
     it('returns the viable strategy', () => {
-      expect(getSearchStrategyByViability({ id: '0' } as IndexPattern)).toBe(
+      expect(strategies.getSearchStrategyByViability({ id: '0' } as IndexPattern)).toBe(
         mockSearchStrategies[0]
       );
-      expect(getSearchStrategyByViability({ id: '1' } as IndexPattern)).toBe(
+      expect(strategies.getSearchStrategyByViability({ id: '1' } as IndexPattern)).toBe(
         mockSearchStrategies[1]
       );
     });
 
     it('returns undefined if there is no viable strategy', () => {
-      expect(getSearchStrategyByViability({ id: '-1' } as IndexPattern)).toBe(undefined);
+      expect(strategies.getSearchStrategyByViability({ id: '-1' } as IndexPattern)).toBe(undefined);
     });
   });
 
   describe('getSearchStrategyById', () => {
     beforeEach(() => {
-      mockSearchStrategies.forEach(addSearchStrategy);
+      mockSearchStrategies.forEach(strategies.addSearchStrategy);
     });
 
     it('returns the strategy by ID', () => {
-      expect(getSearchStrategyById('0')).toBe(mockSearchStrategies[0]);
-      expect(getSearchStrategyById('1')).toBe(mockSearchStrategies[1]);
+      expect(strategies.getSearchStrategyById('0')).toBe(mockSearchStrategies[0]);
+      expect(strategies.getSearchStrategyById('1')).toBe(mockSearchStrategies[1]);
     });
 
     it('returns undefined if there is no strategy with that ID', () => {
-      expect(getSearchStrategyById('-1')).toBe(undefined);
+      expect(strategies.getSearchStrategyById('-1')).toBe(undefined);
     });
 
     it('returns the noOp search strategy if passed that ID', () => {
-      expect(getSearchStrategyById('noOp')).toBe(noOpSearchStrategy);
+      expect(strategies.getSearchStrategyById('noOp')).toBe(noOpSearchStrategy);
     });
   });
 
   describe('getSearchStrategyForSearchRequest', () => {
     beforeEach(() => {
-      mockSearchStrategies.forEach(addSearchStrategy);
+      mockSearchStrategies.forEach(strategies.addSearchStrategy);
     });
 
     it('returns the strategy by ID if provided', () => {
-      expect(getSearchStrategyForSearchRequest({}, { searchStrategyId: '1' })).toBe(
+      expect(strategies.getSearchStrategyForSearchRequest({}, { searchStrategyId: '1' })).toBe(
         mockSearchStrategies[1]
       );
     });
 
     it('throws if there is no strategy by provided ID', () => {
       expect(() =>
-        getSearchStrategyForSearchRequest({}, { searchStrategyId: '-1' })
+        strategies.getSearchStrategyForSearchRequest({}, { searchStrategyId: '-1' })
       ).toThrowErrorMatchingInlineSnapshot(`"No strategy with ID -1"`);
     });
 
     it('returns the strategy by viability if there is one', () => {
       expect(
-        getSearchStrategyForSearchRequest({
+        strategies.getSearchStrategyForSearchRequest({
           index: {
             id: '1',
           },
@@ -132,18 +127,21 @@ describe('Search strategy registry', () => {
     });
 
     it('returns the no op strategy if there is no viable strategy', () => {
-      expect(getSearchStrategyForSearchRequest({ index: '3' })).toBe(noOpSearchStrategy);
+      expect(strategies.getSearchStrategyForSearchRequest({ index: '3' })).toBe(noOpSearchStrategy);
     });
   });
 
-  describe('hasSearchStategyForIndexPattern', () => {
+  describe('hasSearchStrategyForIndexPattern', () => {
     beforeEach(() => {
-      mockSearchStrategies.forEach(addSearchStrategy);
+      mockSearchStrategies.forEach(strategies.addSearchStrategy);
     });
 
     it('returns whether there is a search strategy for this index pattern', () => {
-      expect(hasSearchStategyForIndexPattern({ id: '0' } as IndexPattern)).toBe(true);
-      expect(hasSearchStategyForIndexPattern({ id: '-1' } as IndexPattern)).toBe(false);
+      expect(strategies.hasSearchStrategyForIndexPattern({ id: '0' } as IndexPattern)).toBe(true);
+      expect(strategies.hasSearchStrategyForIndexPattern({ id: '-1' } as IndexPattern)).toBe(false);
+      // here to test BWC for method with typo in name
+      expect(strategies.hasSearchStategyForIndexPattern({ id: '0' } as IndexPattern)).toBe(true);
+      expect(strategies.hasSearchStategyForIndexPattern({ id: '-1' } as IndexPattern)).toBe(false);
     });
   });
 });

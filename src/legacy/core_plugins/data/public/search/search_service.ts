@@ -19,14 +19,15 @@
 
 import { Plugin, CoreSetup, CoreStart } from '../../../../../core/public';
 import { SearchSource } from './search_source';
-import { defaultSearchStrategy } from './search_strategy';
-import { SearchStrategyProvider } from './search_strategy/types';
+import { defaultSearchStrategy, SearchStrategyRegistry } from './search_strategy';
 
-export interface SearchSetup {} // eslint-disable-line @typescript-eslint/no-empty-interface
+export interface SearchSetup {
+  strategies: SearchStrategyRegistry;
+}
 
 export interface SearchStart {
-  defaultSearchStrategy: SearchStrategyProvider;
   SearchSource: typeof SearchSource;
+  strategies: SearchStrategyRegistry;
 }
 
 /**
@@ -36,14 +37,20 @@ export interface SearchStart {
  * it will move into the existing search service in src/plugins/data/public/search
  */
 export class SearchService implements Plugin<SearchSetup, SearchStart> {
+  private readonly searchStrategyRegistry = new SearchStrategyRegistry();
+
   public setup(core: CoreSetup): SearchSetup {
-    return {};
+    this.searchStrategyRegistry.addSearchStrategy(defaultSearchStrategy);
+
+    return {
+      strategies: this.searchStrategyRegistry,
+    };
   }
 
   public start(core: CoreStart): SearchStart {
     return {
-      defaultSearchStrategy,
       SearchSource,
+      strategies: this.searchStrategyRegistry,
     };
   }
 

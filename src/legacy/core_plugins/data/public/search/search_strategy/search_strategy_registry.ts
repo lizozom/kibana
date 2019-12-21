@@ -22,50 +22,63 @@ import { SearchStrategyProvider } from './types';
 import { noOpSearchStrategy } from './no_op_search_strategy';
 import { SearchResponse } from '../types';
 
-export const searchStrategies: SearchStrategyProvider[] = [];
+export class SearchStrategyRegistry {
+  private readonly searchStrategies: SearchStrategyProvider[] = [];
 
-export const addSearchStrategy = (searchStrategy: SearchStrategyProvider) => {
-  if (searchStrategies.includes(searchStrategy)) {
-    return;
-  }
+  getAll = (): SearchStrategyProvider[] => {
+    return this.searchStrategies.map(strategy => Object.freeze(strategy));
+  };
 
-  searchStrategies.push(searchStrategy);
-};
+  addSearchStrategy = (searchStrategy: SearchStrategyProvider) => {
+    if (this.searchStrategies.includes(searchStrategy)) {
+      return;
+    }
 
-export const getSearchStrategyByViability = (indexPattern: IndexPattern) => {
-  return searchStrategies.find(searchStrategy => {
-    return searchStrategy.isViable(indexPattern);
-  });
-};
+    this.searchStrategies.push(searchStrategy);
+  };
 
-export const getSearchStrategyById = (searchStrategyId: string) => {
-  return [...searchStrategies, noOpSearchStrategy].find(searchStrategy => {
-    return searchStrategy.id === searchStrategyId;
-  });
-};
+  getSearchStrategyByViability = (indexPattern: IndexPattern) => {
+    return this.searchStrategies.find(searchStrategy => {
+      return searchStrategy.isViable(indexPattern);
+    });
+  };
 
-export const getSearchStrategyForSearchRequest = (
-  searchRequest: SearchResponse,
-  { searchStrategyId }: { searchStrategyId?: string } = {}
-) => {
-  // Allow the searchSource to declare the correct strategy with which to execute its searches.
-  if (searchStrategyId != null) {
-    const strategy = getSearchStrategyById(searchStrategyId);
-    if (!strategy) throw Error(`No strategy with ID ${searchStrategyId}`);
-    return strategy;
-  }
+  getSearchStrategyById = (searchStrategyId: string) => {
+    return [...this.searchStrategies, noOpSearchStrategy].find(searchStrategy => {
+      return searchStrategy.id === searchStrategyId;
+    });
+  };
 
-  // Otherwise try to match it to a strategy.
-  const viableSearchStrategy = getSearchStrategyByViability(searchRequest.index);
+  getSearchStrategyForSearchRequest = (
+    searchRequest: SearchResponse,
+    { searchStrategyId }: { searchStrategyId?: string } = {}
+  ) => {
+    // Allow the searchSource to declare the correct strategy with which to execute its searches.
+    if (searchStrategyId != null) {
+      const strategy = this.getSearchStrategyById(searchStrategyId);
+      if (!strategy) throw Error(`No strategy with ID ${searchStrategyId}`);
+      return strategy;
+    }
 
-  if (viableSearchStrategy) {
-    return viableSearchStrategy;
-  }
+    // Otherwise try to match it to a strategy.
+    const viableSearchStrategy = this.getSearchStrategyByViability(searchRequest.index);
 
-  // This search strategy automatically rejects with an error.
-  return noOpSearchStrategy;
-};
+    if (viableSearchStrategy) {
+      return viableSearchStrategy;
+    }
 
-export const hasSearchStategyForIndexPattern = (indexPattern: IndexPattern) => {
-  return Boolean(getSearchStrategyByViability(indexPattern));
-};
+    // This search strategy automatically rejects with an error.
+    return noOpSearchStrategy;
+  };
+
+  hasSearchStrategyForIndexPattern = (indexPattern: IndexPattern) => {
+    return Boolean(this.getSearchStrategyByViability(indexPattern));
+  };
+
+  /**
+   * Here for BWC only; deprecated due to typo in the method name.
+   *
+   * @deprecated
+   */
+  hasSearchStategyForIndexPattern = this.hasSearchStrategyForIndexPattern;
+}
