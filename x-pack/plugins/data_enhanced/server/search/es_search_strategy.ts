@@ -90,6 +90,7 @@ export const enhancedEsSearchStrategyProvider = (
         ...(await getDefaultSearchParams(uiSettingsClient)),
         ...asyncOptions,
         ...request.params,
+        requestCache: false,
       });
 
       promise = esClient.asyncSearch.submit(submitOptions);

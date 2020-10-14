@@ -5,6 +5,8 @@
  */
 
 import { flatten } from 'lodash';
+import { map } from 'rxjs/operators';
+import { Observable, merge, combineLatest } from 'rxjs';
 import { escapeQuotes } from './lib/escape_kuery';
 import { KqlQuerySuggestionProvider } from './types';
 import { getAutocompleteService } from '../../../services';
@@ -26,10 +28,10 @@ const wrapAsSuggestions = (start: number, end: number, query: string, values: st
     }));
 
 export const setupGetValueSuggestions: KqlQuerySuggestionProvider = () => {
-  return async (
+  return (
     { indexPatterns, boolFilter, signal },
     { start, end, prefix, suffix, fieldName, nestedPath }
-  ): Promise<QuerySuggestion[]> => {
+  ): Observable<QuerySuggestion[]> => {
     const fullFieldName = nestedPath ? `${nestedPath}.${fieldName}` : fieldName;
 
     const indexPatternFieldEntries: Array<[IIndexPattern, IFieldType]> = [];
@@ -42,7 +44,7 @@ export const setupGetValueSuggestions: KqlQuerySuggestionProvider = () => {
     const query = `${prefix}${suffix}`.trim();
     const { getValueSuggestions } = getAutocompleteService();
 
-    const data = await Promise.all(
+    return combineLatest(
       indexPatternFieldEntries.map(([indexPattern, field]) =>
         getValueSuggestions({
           indexPattern,
@@ -50,16 +52,19 @@ export const setupGetValueSuggestions: KqlQuerySuggestionProvider = () => {
           query,
           boolFilter,
           signal,
-        }).then((valueSuggestions) => {
-          const quotedValues = valueSuggestions.map((value) =>
-            typeof value === 'string' ? `"${escapeQuotes(value)}"` : `${value}`
-          );
+        }).pipe(
+          map((allResults: any[][]) => {
+            return flatten(allResults);
+          }),
+          map((valueSuggestions) => {
+            const quotedValues = valueSuggestions.map((value) =>
+              typeof value === 'string' ? `"${escapeQuotes(value)}"` : `${value}`
+            );
 
-          return wrapAsSuggestions(start, end, query, quotedValues);
-        })
+            return wrapAsSuggestions(start, end, query, quotedValues);
+          })
+        )
       )
-    );
-
-    return flatten(data);
+    ).pipe(map((data: any) => flatten(data)));
   };
 };

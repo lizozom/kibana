@@ -6,6 +6,7 @@
 import React from 'react';
 import { $Keys } from 'utility-types';
 import { FormattedMessage } from '@kbn/i18n/react';
+import { of } from 'rxjs';
 import { KqlQuerySuggestionProvider } from './types';
 import {
   QuerySuggestion,
@@ -73,6 +74,6 @@ export const setupGetConjunctionSuggestions: KqlQuerySuggestionProvider = (core)
       }));
     }
 
-    return Promise.resolve(suggestions);
+    return of(suggestions);
   };
 };

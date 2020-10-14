@@ -4,9 +4,11 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+import { Observable, merge, of, combineLatest } from 'rxjs';
 import { CoreSetup } from 'kibana/public';
 import { $Keys } from 'utility-types';
 import { flatten, uniqBy } from 'lodash';
+import { map, tap, combineAll } from 'rxjs/operators';
 import { setupGetFieldSuggestions } from './field';
 import { setupGetValueSuggestions } from './value';
 import { setupGetOperatorSuggestions } from './operator';
@@ -36,18 +38,29 @@ export const setupKqlQuerySuggestionProvider = (core: CoreSetup): QuerySuggestio
   const getSuggestionsByType = (
     cursoredQuery: string,
     querySuggestionsArgs: QuerySuggestionGetFnArgs
-  ): Array<Promise<QuerySuggestion[]>> | [] => {
+  ): Observable<QuerySuggestion[]> => {
     try {
       const cursorNode = esKuery.fromKueryExpression(cursoredQuery, {
         cursorSymbol,
         parseCursor: true,
       });
 
-      return cursorNode.suggestionTypes.map((type: $Keys<typeof providers>) =>
-        providers[type](querySuggestionsArgs, cursorNode)
+      const suggestionProviders$: Array<Observable<
+        QuerySuggestion[]
+      >> = cursorNode.suggestionTypes.map((type: $Keys<typeof providers>) => {
+        const x = providers[type](querySuggestionsArgs, cursorNode);
+        console.log('HIIII', type, x);
+
+        return x;
+      });
+      return combineLatest(suggestionProviders$).pipe(
+        map((suggestionsByType: any) => {
+          return dedup(flatten(suggestionsByType));
+        })
       );
     } catch (e) {
-      return [];
+      console.log(e);
+      return of([]);
     }
   };
 
@@ -57,8 +70,6 @@ export const setupKqlQuerySuggestionProvider = (core: CoreSetup): QuerySuggestio
       selectionEnd
     )}`;
 
-    return Promise.all(
-      getSuggestionsByType(cursoredQuery, querySuggestionsArgs)
-    ).then((suggestionsByType) => dedup(flatten(suggestionsByType)));
+    return getSuggestionsByType(cursoredQuery, querySuggestionsArgs);
   };
 };

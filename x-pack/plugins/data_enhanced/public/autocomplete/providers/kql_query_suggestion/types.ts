@@ -5,6 +5,7 @@
  */
 
 import { CoreSetup } from 'kibana/public';
+import { Observable } from 'rxjs';
 import {
   KueryNode,
   QuerySuggestionBasic,
@@ -13,4 +14,4 @@ import {
 
 export type KqlQuerySuggestionProvider<T = QuerySuggestionBasic> = (
   core: CoreSetup
-) => (querySuggestionsGetFnArgs: QuerySuggestionGetFnArgs, kueryNode: KueryNode) => Promise<T[]>;
+) => (querySuggestionsGetFnArgs: QuerySuggestionGetFnArgs, kueryNode: KueryNode) => Observable<T[]>;

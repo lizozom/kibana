@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 import React from 'react';
+import { of } from 'rxjs';
 import { flatten } from 'lodash';
 import { FormattedMessage } from '@kbn/i18n/react';
 import { escapeKuery } from './lib/escape_kuery';
@@ -90,6 +91,6 @@ export const setupGetFieldSuggestions: KqlQuerySuggestionProvider<QuerySuggestio
       };
     });
 
-    return Promise.resolve(suggestions);
+    return of(suggestions);
   };
 };

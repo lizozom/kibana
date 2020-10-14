@@ -34,8 +34,10 @@ import {
 } from '@elastic/eui';
 
 import { FormattedMessage } from '@kbn/i18n/react';
-import { debounce, compact, isEqual, isFunction } from 'lodash';
+import { debounce, compact, isEqual, isFunction, flatten } from 'lodash';
 import { Toast } from 'src/core/public';
+import { of, combineLatest, Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { IDataPluginServices, IIndexPattern, Query } from '../..';
 import { QuerySuggestion, QuerySuggestionTypes } from '../../autocomplete';
 
@@ -71,6 +73,7 @@ interface Props extends QueryStringInputProps {
 }
 
 interface State {
+  isLoadingSuggestions: boolean;
   isSuggestionsVisible: boolean;
   index: number | null;
   suggestions: QuerySuggestion[];
@@ -98,6 +101,7 @@ const KEY_CODES = {
 export default class QueryStringInputUI extends Component<Props, State> {
   public state: State = {
     isSuggestionsVisible: false,
+    isLoadingSuggestions: false,
     index: null,
     suggestions: [],
     suggestionLimit: 50,
@@ -138,55 +142,49 @@ export default class QueryStringInputUI extends Component<Props, State> {
     });
   };
 
-  private getSuggestions = async () => {
-    if (!this.inputRef) {
-      return;
-    }
-
-    const language = this.props.query.language;
-    const queryString = this.getQueryString();
-
+  private getSuggestions = (
+    indexPatterns: IIndexPattern[],
+    language: string,
+    queryString: string,
+    selectionStart: number,
+    selectionEnd: number
+  ): Observable<QuerySuggestion[]> => {
     const recentSearchSuggestions = this.getRecentSearchSuggestions(queryString);
     const hasQuerySuggestions = this.services.data.autocomplete.hasQuerySuggestions(language);
 
     if (
       !hasQuerySuggestions ||
       !Array.isArray(this.state.indexPatterns) ||
-      compact(this.state.indexPatterns).length === 0
+      compact(indexPatterns).length === 0
     ) {
-      return recentSearchSuggestions;
+      return of(recentSearchSuggestions);
     }
 
-    const indexPatterns = this.state.indexPatterns;
+    if (this.abortController) this.abortController.abort();
+    this.abortController = new AbortController();
 
-    const { selectionStart, selectionEnd } = this.inputRef;
-    if (selectionStart === null || selectionEnd === null) {
-      return;
-    }
-
-    try {
-      if (this.abortController) this.abortController.abort();
-      this.abortController = new AbortController();
-      const suggestions =
-        (await this.services.data.autocomplete.getQuerySuggestions({
-          language,
-          indexPatterns,
-          query: queryString,
-          selectionStart,
-          selectionEnd,
-          signal: this.abortController.signal,
-        })) || [];
-
-      return [...suggestions, ...recentSearchSuggestions];
-    } catch (e) {
-      // TODO: Waiting on https://github.com/elastic/kibana/issues/51406 for a properly typed error
-      // Ignore aborted requests
-      if (e.message === 'The user aborted a request.') return;
-      throw e;
-    }
+    const suggestions$: Observable<QuerySuggestion[]> = this.services.data.autocomplete
+      .getQuerySuggestions({
+        language,
+        indexPatterns,
+        query: queryString,
+        selectionStart,
+        selectionEnd,
+        signal: this.abortController.signal,
+      })
+      .pipe(
+        catchError(() => {
+          return of([]);
+        })
+      );
+    return combineLatest([suggestions$, of(recentSearchSuggestions)]).pipe(
+      map((allSuggestions: QuerySuggestion[][]) => {
+        return flatten(allSuggestions);
+      })
+    );
   };
 
-  private getRecentSearchSuggestions = (query: string) => {
+  private getRecentSearchSuggestions = (query: string): QuerySuggestion[] => {
     if (!this.persistedLog) {
       return [];
     }
@@ -204,10 +202,36 @@ export default class QueryStringInputUI extends Component<Props, State> {
   };
 
   private updateSuggestions = debounce(async () => {
-    const suggestions = (await this.getSuggestions()) || [];
-    if (!this.componentIsUnmounting) {
-      this.setState({ suggestions });
+    if (!this.inputRef) {
+      return;
     }
+    const language = this.props.query.language;
+    const queryString = this.getQueryString();
+    const { selectionStart, selectionEnd } = this.inputRef;
+    if (selectionStart === null || selectionEnd === null) {
+      return;
+    }
+    this.setState({ isLoadingSuggestions: true });
+    const suggestions$ = this.getSuggestions(
+      this.state.indexPatterns,
+      language,
+      queryString,
+      selectionStart,
+      selectionEnd
+    );
+    suggestions$.subscribe(
+      (suggestions) => {
+        if (!this.componentIsUnmounting) {
+          this.setState({ suggestions });
+        }
+      },
+      () => {
+        this.setState({ suggestions: [] });
+      },
+      () => {
+        this.setState({ isLoadingSuggestions: false });
+      }
+    );
   }, 100);
 
   private onSubmit = (query: Query) => {

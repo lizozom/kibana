@@ -18,6 +18,7 @@
  */
 
 import { CoreSetup, PluginInitializerContext } from 'src/core/public';
+import { of } from 'rxjs';
 import { QuerySuggestionGetFn } from './providers/query_suggestion_provider';
 import {
   getEmptyValueSuggestions,
@@ -51,6 +52,8 @@ export class AutocompleteService {
 
     if (provider) {
       return provider(args);
+    } else {
+      return of([]);
     }
   };
 

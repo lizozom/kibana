@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { Observable } from 'rxjs';
 import { IFieldType, IIndexPattern } from '../../../common/index_patterns';
 
 export enum QuerySuggestionTypes {
@@ -29,7 +30,7 @@ export enum QuerySuggestionTypes {
 
 export type QuerySuggestionGetFn = (
   args: QuerySuggestionGetFnArgs
-) => Promise<QuerySuggestion[]> | undefined;
+) => Observable<QuerySuggestion[]>;
 
 /** @public **/
 export interface QuerySuggestionGetFnArgs {

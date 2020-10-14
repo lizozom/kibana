@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { of } from 'rxjs';
 import { FormattedMessage } from '@kbn/i18n/react';
 import { $Keys } from 'utility-types';
 import { flatten } from 'lodash';
@@ -172,6 +173,6 @@ export const setupGetOperatorSuggestions: KqlQuerySuggestionProvider = () => {
         return suggestions;
       });
 
-    return Promise.resolve(flatten(fields));
+    return of(flatten(fields));
   };
 };
